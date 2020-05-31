@@ -1,0 +1,9 @@
+{
+  "name": "node_express_acl",
+  "version": "0.0.1",
+  "author": "Darryl Patterson <widgetapps@gmail.com>",
+  "license": "LicenseRef-LICENSE",
+  "main": "index.js",
+  "dependencies": {
+  }
+}
