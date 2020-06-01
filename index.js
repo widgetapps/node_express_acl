@@ -1,29 +1,4 @@
 'use strict';
-/*
-Need to be able to handle paths with params. Maybe start with 2 types of params:
-  :param - Any param, so can have any value
-
-Need to parse the actual path and compare to the ACL path to match.
-
-I think simple role/path is all I really need. Role can be an array of roles, something like:
-[
-  {
-    'resource': '/users/:param'.
-    'methods: ['get'],
-    'roles': ['user', 'admin', 'super']
-  },
-  {
-    'resource': '/tokens/:param'.
-    'method: ['get'],
-    'roles': ['user', 'admin', 'super']
-  },
-  {
-    'resource': '/path/:param/path'.
-    'method: ['get'],
-    'roles': ['user', 'admin', 'super']
-  }
-]
- */
 
 let resources = [], validRoles = [];
 let validMethods = [
@@ -36,24 +11,29 @@ let validMethods = [
 let wildcards = ['*', ':param', ':user'];
 
 // Adds a resource to the ACL
-exports.addResource = function (resource, methods, roles) {
-    methods.forEach(function(value, index, array) {
-        if (validMethods.indexOf(value.toUpperCase()) === -1) {
-            throw 'Invalid method: ' + value;
-        }
-    });
-
-    roles.forEach(function(value, index, array) {
-        if (validRoles.indexOf(value) === -1) {
+exports.addResource = function (resource, permissions) {
+    permissions.forEach(function(value, index, array) {
+        if (validRoles.indexOf(value.role) === -1) {
             throw 'Invalid role: ' + value;
         }
+
+        if (Array.isArray(value.methods)) {
+            value.methods.forEach(function(mvalue, mindex, marray) {
+                if (validMethods.indexOf(mvalue.toUpperCase()) === -1) {
+                    throw 'Invalid method: ' + value;
+                }
+            });
+        } else {
+            throw 'ACL methods is not an array';
+        }
+
+        resources.push({
+            'resource': resource,
+            'permissions': permissions
+        });
     });
 
-    resources.push({
-        'resource': resource,
-        'methods': methods,
-        'roles': roles
-    });
+    console.log(JSON.stringify(resources));
 };
 
 exports.setRoles = function (roles) {
@@ -75,8 +55,22 @@ exports.authorize = function (req, res, next) {
             });
         }
 
-        // If the request method and the user's role match the resource, we're good.
-        if (resource.methods.includes(req.method) && resource.roles.includes(req.user.role)) {
+        let found;
+
+        for (const permission of resource.permissions) {
+            if (permission.role === req.user.role) {
+                found = permission;
+                break;
+            }
+        }
+
+        if (found === null) {
+            res.status(403).send({
+                message: 'Permissions for this resource do not exist for your role.'
+            });
+        }
+
+        if (found.methods.includes(req.method) && found.role.includes(req.user.role)) {
             next();
         } else {
             res.status(403).send({
@@ -93,15 +87,16 @@ function getAclResource(path) {
     // Split the path into parts
     let pathParts = path.split('/');
 
-    resources.forEach(function (value, index, array) {
+    for (const value of resources) {
         let matchParts = value.resource.split('/');
         let pathMatch = true;
 
         // If array lengths are equal (paths are the same length), check parts, otherwise no match
         if (pathParts.length === matchParts.length) {
             // check that each part matches
-            for (let i = 0; i <= matchParts.length; i++) {
-                // If the path part is a wilcard, assume a match for this part (don't change state ot pathMatch)
+            for (let i = 0; i < matchParts.length; i++) {
+                if (matchParts[i] === '') continue;
+                // If the path part is a wildcard, assume a match for this part (don't change state ot pathMatch)
                 if (wildcards.includes(matchParts[i]) ) continue;
 
                 // Check if parts are equal
@@ -116,8 +111,8 @@ function getAclResource(path) {
             pathMatch = false;
         }
 
-        if (pathMatch) return value.resource;
-    });
+        if (pathMatch) return value;
+    }
 
     return null;
 }
