@@ -1,9 +1,16 @@
 {
   "name": "node_express_acl",
   "version": "0.0.1",
-  "author": "Darryl Patterson <widgetapps@gmail.com>",
+  "author": {
+    "name": "Darryl Patterson",
+    "email": "widgetapps@gmail.com"
+  },
   "license": "LicenseRef-LICENSE",
   "main": "index.js",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/widgetapps/node_express_acl.git"
+  },
   "dependencies": {
   }
 }
