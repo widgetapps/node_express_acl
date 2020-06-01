@@ -32,8 +32,6 @@ exports.addResource = function (resource, permissions) {
             'permissions': permissions
         });
     }
-
-    console.log(JSON.stringify(resources));
 };
 
 exports.setRoles = function (roles) {
