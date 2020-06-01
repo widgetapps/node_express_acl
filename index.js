@@ -99,10 +99,8 @@ function getAclResource(path) {
                 // If the path part is a wildcard, assume a match for this part (don't change state ot pathMatch)
                 if (wildcards.includes(matchParts[i]) ) continue;
 
-                // Check if parts are equal
-                if (matchParts[i] === pathParts[i]) {
-                    continue;
-                } else {
+                // Check if parts not equal
+                if (matchParts[i] !== pathParts[i]) {
                     pathMatch = false;
                     break;
                 }
