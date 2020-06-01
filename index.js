@@ -12,17 +12,17 @@ let wildcards = ['*', ':param', ':user'];
 
 // Adds a resource to the ACL
 exports.addResource = function (resource, permissions) {
-    permissions.forEach(function(value, index, array) {
-        if (validRoles.indexOf(value.role) === -1) {
-            throw 'Invalid role: ' + value;
+    for (const permission of permissions) {
+        if (validRoles.indexOf(permission.role) === -1) {
+            throw 'Invalid role: ' + permission;
         }
 
-        if (Array.isArray(value.methods)) {
-            value.methods.forEach(function(mvalue, mindex, marray) {
-                if (validMethods.indexOf(mvalue.toUpperCase()) === -1) {
-                    throw 'Invalid method: ' + value;
+        if (Array.isArray(permission.methods)) {
+            for (const method of permission.methods) {
+                if (validMethods.indexOf(method.toUpperCase()) === -1) {
+                    throw 'Invalid method: ' + method;
                 }
-            });
+            }
         } else {
             throw 'ACL methods is not an array';
         }
@@ -31,7 +31,7 @@ exports.addResource = function (resource, permissions) {
             'resource': resource,
             'permissions': permissions
         });
-    });
+    }
 
     console.log(JSON.stringify(resources));
 };
