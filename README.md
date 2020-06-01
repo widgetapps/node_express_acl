@@ -4,6 +4,8 @@ Node Express ACL is a light-weight pure JS implementation of an Access Control L
 other Node module. It's simple design allows you to start using ACL with your ExpressJS/NodeJS back-end very quickly.
 This module functions particularly well for RESTful APIs.
 
+[![NPM](https://nodei.co/npm/node_express_acl.png)](https://nodei.co/npm/node_express_acl/)
+
 ## Installation
 
 This module does require that your have [NodeJS](http://nodejs.org/) and [ExpressJS](http://expressjs.com/) installed.
